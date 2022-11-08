@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import api from '../utils/Api.js';
 import Header from "./Header.js";
 import Main from "./Main.js";
@@ -9,6 +10,10 @@ import ImagePopup from "./ImagePopup.js";
 import EditAvatarPopup from "./EditAvatarPopup.js";
 import EditProfilePopup from "./EditProfilePopup.js";
 import AddPlacePopup from "./AddPlacePopup.js";
+import Register from "./Register.js";
+import Login from "./Login.js";
+import ProtectedRoute from "./ProtectedRoute.js";
+import InfoToolTip from './InfoToolTip.js';
 import { CurrentUserContext } from "../contexts/CurrentUserContext.js";
 
 function App() {
@@ -16,9 +21,11 @@ function App() {
   const [isEditProfilePopupOpen, toggleEditProfilePopup] = React.useState(false);
   const [isAddPlacePopupOpen, toggleAddPlacePopup] = React.useState(false);
   const [isEditAvatarPopupOpen, toggleEditAvatarPopup] = React.useState(false);
+  const [isInfoToolTipOpen, toggleInfoToolTip] = React.useState(false);
   const [selectedCard, handleCardClick] = React.useState(null);
   const [currentUser, setUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
+  const [loggedIn, toggleLoggedIn] = React.useState(true);
 
   React.useEffect(() => {
     api.getUserInfo()
@@ -69,6 +76,7 @@ function App() {
     toggleEditProfilePopup(false);
     toggleAddPlacePopup(false);
     toggleEditAvatarPopup(false);
+    toggleInfoToolTip(false);
     handleCardClick(null);
   }
 
@@ -99,12 +107,25 @@ function App() {
     <CurrentUserContext.Provider value={currentUser}>
       <div className='page'>
         <Header />
-        <Main cards={cards} onCardLike={handleCardLike} onCardDelete={handleCardDelete} onEditProfile={handleEditProfileClick} onAddPlace={handleAddPlaceClick} onEditAvatar={handleAvatarEditClick} onCardClick={handleCardClick}/>
+        <Switch>
+          <Route path='/sign-up'>
+            <Register />
+            <InfoToolTip isRegistered={false} onClose={closeAllPopups} isOpen={isInfoToolTipOpen}/>
+          </Route>
+          <Route path='/sign-in'>
+            <Login />
+          </Route>
+          <ProtectedRoute path='/' loggedIn={loggedIn} component={Main} cards={cards} onCardLike={handleCardLike} onCardDelete={handleCardDelete} onEditProfile={handleEditProfileClick} onAddPlace={handleAddPlaceClick} onEditAvatar={handleAvatarEditClick} onCardClick={handleCardClick} />
+          <Route exact path='/'>
+            {loggedIn ? <Redirect to='/'  /> 
+            : <Redirect to='/sign-up' />}
+          </Route>
+        </Switch>
         <Footer />
         <EditAvatarPopup isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} onUpdateAvatar={handleUpdateAvatar}/>
         <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser}/>
         <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddPlaceSubmit}/>
-        <PopupWithForm name='confirmation' title='Вы уверены?'isOpen={false} onClose={closeAllPopups} buttonText='Да' onSubmit={() => {}}>
+        <PopupWithForm name='confirmation' title='Вы уверены?' isOpen={false} onClose={closeAllPopups} buttonText='Да' onSubmit={() => {}}>
         </PopupWithForm>
         <ImagePopup card={selectedCard} onClose={closeAllPopups}/>
       </div>
