@@ -2,7 +2,7 @@ import React from "react";
 import registerCheck from '../images/RegisterCheck.png';
 import registerFail from '../images/RegisterFail.png';
 
-function InfoToolTip({isRegistered, onClose, isOpen}) {
+function InfoToolTip({isRegistered, onClose, isOpen, errorMessage}) {
     return (
         <div className={`popup info-tool-tip ${isOpen? ('popup_opened') : ('')}`}>
             <div className="popup__container info-tool-tip__container">
@@ -13,7 +13,7 @@ function InfoToolTip({isRegistered, onClose, isOpen}) {
                     </>
                     : <>
                         <img className="info-tool-tip__pic" src={registerFail} />
-                        <h2 className="info-tool-tip__title">Что-то пошло не так! Попробуйте еще раз.</h2>
+                        <h2 className="info-tool-tip__title">{errorMessage}</h2>
                     </>
                 }
                 <button type="button" aria-label="Закрыть окно" className="popup__close-btn button-decor hover-opacity" onClick={onClose}></button>

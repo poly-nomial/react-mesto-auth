@@ -13,7 +13,6 @@ import AddPlacePopup from "./AddPlacePopup.js";
 import Register from "./Register.js";
 import Login from "./Login.js";
 import ProtectedRoute from "./ProtectedRoute.js";
-import InfoToolTip from './InfoToolTip.js';
 import { CurrentUserContext } from "../contexts/CurrentUserContext.js";
 
 function App() {
@@ -25,7 +24,7 @@ function App() {
   const [selectedCard, handleCardClick] = React.useState(null);
   const [currentUser, setUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
-  const [loggedIn, toggleLoggedIn] = React.useState(true);
+  const [loggedIn, toggleLoggedIn] = React.useState(false);
 
   React.useEffect(() => {
     api.getUserInfo()
@@ -72,6 +71,10 @@ function App() {
       toggleAddPlacePopup(true);
   }
 
+  function openToolTip() {
+    toggleInfoToolTip(true);
+  }
+
   function closeAllPopups() {
     toggleEditProfilePopup(false);
     toggleAddPlacePopup(false);
@@ -109,8 +112,7 @@ function App() {
         <Header />
         <Switch>
           <Route path='/sign-up'>
-            <Register />
-            <InfoToolTip isRegistered={false} onClose={closeAllPopups} isOpen={isInfoToolTipOpen}/>
+            <Register isInfoToolTipOpen={isInfoToolTipOpen} handleToolTipClose={closeAllPopups} openToolTip={openToolTip}/>
           </Route>
           <Route path='/sign-in'>
             <Login />
