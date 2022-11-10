@@ -106,6 +106,10 @@ function App() {
     .finally(() => closeAllPopups())
   }
 
+  function handleLogin() {
+    toggleLoggedIn(true);
+  }
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className='page'>
@@ -115,7 +119,7 @@ function App() {
             <Register isInfoToolTipOpen={isInfoToolTipOpen} handleToolTipClose={closeAllPopups} openToolTip={openToolTip}/>
           </Route>
           <Route path='/sign-in'>
-            <Login />
+            <Login handleLogin={handleLogin} />
           </Route>
           <ProtectedRoute path='/' loggedIn={loggedIn} component={Main} cards={cards} onCardLike={handleCardLike} onCardDelete={handleCardDelete} onEditProfile={handleEditProfileClick} onAddPlace={handleAddPlaceClick} onEditAvatar={handleAvatarEditClick} onCardClick={handleCardClick} />
           <Route exact path='/'>
