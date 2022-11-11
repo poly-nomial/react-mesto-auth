@@ -16,6 +16,7 @@ import * as Auth from "../utils/Auth.js";
 import { CurrentUserContext } from "../contexts/CurrentUserContext.js";
 
 function App() {
+  const [loggedIn, toggleLoggedIn] = React.useState(false);
   const [isEditProfilePopupOpen, toggleEditProfilePopup] =
     React.useState(false);
   const [isAddPlacePopupOpen, toggleAddPlacePopup] = React.useState(false);
@@ -25,7 +26,6 @@ function App() {
   const [currentUser, setUser] = React.useState({});
   const [userEmail, setEmail] = React.useState("");
   const [cards, setCards] = React.useState([]);
-  const [loggedIn, toggleLoggedIn] = React.useState(false);
 
   const history = useHistory();
 
@@ -33,9 +33,13 @@ function App() {
     const token = localStorage.getItem("token");
     return Auth.authorize(token)
       .then((data) => {
-        setEmail(data.email);
-        handleLogin();
-        history.push("/");
+        if (data.email) {
+          setEmail(data.email);
+          handleLogin();
+          history.push("/");
+        } else {
+          console.log(`${data.message}`);
+        }
       })
       .catch((err) => console.log(err));
   }
