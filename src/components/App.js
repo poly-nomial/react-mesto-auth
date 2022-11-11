@@ -32,7 +32,7 @@ function App() {
   function tokenCheck() {
     const token = localStorage.getItem("token");
     return Auth.authorize(token)
-      .then((data) => {
+      .then(({ data }) => {
         if (data.email) {
           setEmail(data.email);
           handleLogin();
@@ -45,7 +45,11 @@ function App() {
   }
 
   React.useEffect(() => {
-    tokenCheck().then(() => {
+    tokenCheck();
+  }, []);
+
+  React.useEffect(() => {
+    if (loggedIn) {
       api
         .getUserInfo()
         .then((data) => {
@@ -60,8 +64,8 @@ function App() {
             .catch((err) => console.log(err));
         })
         .catch((err) => console.log(err));
-    });
-  }, []);
+    }
+  }, [loggedIn]);
 
   function handleCardLike(card) {
     const isLiked = card.likes.some((i) => i._id === currentUser._id);
@@ -137,7 +141,6 @@ function App() {
 
   function handleLogin() {
     toggleLoggedIn(true);
-    console.log(loggedIn);
   }
 
   return (
@@ -168,9 +171,6 @@ function App() {
             onEditAvatar={handleAvatarEditClick}
             onCardClick={handleCardClick}
           />
-          <Route exact path="/">
-            {loggedIn ? <Redirect to="/" /> : <Redirect to="/sign-in" />}
-          </Route>
         </Switch>
         <Footer />
         <EditAvatarPopup
