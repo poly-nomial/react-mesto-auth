@@ -22,7 +22,7 @@ export const register = (email, password) => {
             .catch(res => Promise.reject(`Ошибка: ${res.status}`))
 }
 
-export const authorize = (email, password) => {
+export const login = (email, password) => {
     return fetch(`${base_url}/signin`, {
         method: 'POST',
         headers: {
@@ -42,12 +42,12 @@ export const authorize = (email, password) => {
         .catch(res => Promise.reject(`Ошибка: ${res.status}`))
 }
 
-export const login = () => {
+export const authorize = (token) => {
     return fetch(`${base_url}/users/me`, {
         method: 'GET',
         headers: {
             "Content-Type": "application/json",
-            "Authorization" : `Bearer ${localStorage.getItem('token')}`
+            "Authorization" : `Bearer ${token}`
         }
     })
         .then(res => res.json())

@@ -19,12 +19,12 @@ function Login({handleLogin}) {
     function handleSubmit(e){
         e.preventDefault();
 
-        Auth.authorize(email,password)
-        .then(() => {
-            handleLogin();
-            history.push('/');
-        })
-        .catch(err => console.log(err))
+        Auth.login(email,password)
+            .then(() => {
+                handleLogin();
+                history.push('/');
+            })
+            .catch(err => console.log(err))
     }
 
     return (
