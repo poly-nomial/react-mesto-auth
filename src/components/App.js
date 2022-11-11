@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch, Route, Redirect, useHistory } from "react-router-dom";
+import { Switch, Route, useHistory } from "react-router-dom";
 import api from "../utils/Api.js";
 import Header from "./Header.js";
 import Main from "./Main.js";
@@ -46,6 +46,7 @@ function App() {
 
   React.useEffect(() => {
     tokenCheck();
+    history.push("/");
   }, []);
 
   React.useEffect(() => {
