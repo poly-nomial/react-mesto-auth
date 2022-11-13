@@ -1,36 +1,30 @@
 import React from "react";
-import { Route, Switch, useHistory } from "react-router-dom";
+import { Route, Switch, Link } from "react-router-dom";
 import logo from "../images/logo.svg";
 
 function Header(props) {
-  const history = useHistory();
-  function signOut() {
-    localStorage.removeItem("token");
-    history.push("/sign-in");
-  }
-
   return (
     <header className="header">
       <img className="logo" src={logo} alt="Логотип Место.Россия" />
       <Switch>
         <Route path="/sign-up">
-          <a className="header__link hover-opacity" href="/sign-in">
+          <Link to="/sign-in" className="header__link hover-opacity">
             Войти
-          </a>
+          </Link>
         </Route>
         <Route path="/sign-in">
-          <a className="header__link hover-opacity" href="/sign-up">
+          <Link to="/sign-up" className="header__link hover-opacity">
             Регистрация
-          </a>
+          </Link>
         </Route>
         <Route exact path="/">
           <p className="header__email">{props.email}</p>
-          <a
+          <p
             className="header__link header__link_exit hover-opacity"
-            onClick={signOut}
+            onClick={props.onSignOut}
           >
             Выйти
-          </a>
+          </p>
         </Route>
       </Switch>
     </header>

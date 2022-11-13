@@ -36,7 +36,7 @@ function App() {
         .then((res) => {
           if (res.data) {
             setEmail(res.data.email);
-            toggleLoggedIn(true);
+            handleLogin();
             history.push("/");
           } else {
             console.log(`${res.message}`);
@@ -144,11 +144,27 @@ function App() {
     toggleLoggedIn(true);
   }
 
+  function handleSignOut() {
+    handleLogin();
+    localStorage.removeItem("token");
+    history.push("/sign-in");
+  }
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
-        <Header email={userEmail} />
+        <Header email={userEmail} onSignOut={handleSignOut} />
         <Switch>
+          <Route path="/sign-up">
+            <Register
+              isInfoToolTipOpen={isInfoToolTipOpen}
+              handleToolTipClose={closeAllPopups}
+              openToolTip={openToolTip}
+            />
+          </Route>
+          <Route path="/sign-in">
+            <Login handleLogin={handleLogin} />
+          </Route>
           <ProtectedRoute
             exact
             path="/"
@@ -162,16 +178,6 @@ function App() {
             onEditAvatar={handleAvatarEditClick}
             onCardClick={handleCardClick}
           />
-          <Route path="/sign-up">
-            <Register
-              isInfoToolTipOpen={isInfoToolTipOpen}
-              handleToolTipClose={closeAllPopups}
-              openToolTip={openToolTip}
-            />
-          </Route>
-          <Route path="/sign-in">
-            <Login handleLogin={handleLogin} />
-          </Route>
         </Switch>
         <Footer />
         <EditAvatarPopup
