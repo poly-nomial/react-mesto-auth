@@ -31,42 +31,42 @@ function App() {
 
   function tokenCheck() {
     const token = localStorage.getItem("token");
-    return Auth.authorize(token)
-      .then(({ data }) => {
-        if (data.email) {
-          setEmail(data.email);
-          handleLogin();
-          history.push("/");
-        } else {
-          console.log(`${data.message}`);
-        }
-      })
-      .catch((err) => console.log(err));
+    if (token !== null) {
+      return Auth.authorize(token)
+        .then((res) => {
+          if (res.data) {
+            setEmail(res.data.email);
+            toggleLoggedIn(true);
+            history.push("/");
+          } else {
+            console.log(`${res.message}`);
+            history.push("/sign-in");
+          }
+        })
+        .catch((err) => console.log(err));
+    }
   }
 
   React.useEffect(() => {
     tokenCheck();
-    history.push("/");
   }, []);
 
   React.useEffect(() => {
-    if (loggedIn) {
-      api
-        .getUserInfo()
-        .then((data) => {
-          setUser(data);
-        })
-        .then(() => {
-          api
-            .getCardsFromServer()
-            .then((res) => {
-              setCards(res);
-            })
-            .catch((err) => console.log(err));
-        })
-        .catch((err) => console.log(err));
-    }
-  }, [loggedIn]);
+    api
+      .getUserInfo()
+      .then((data) => {
+        setUser(data);
+      })
+      .then(() => {
+        api
+          .getCardsFromServer()
+          .then((res) => {
+            setCards(res);
+          })
+          .catch((err) => console.log(err));
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
   function handleCardLike(card) {
     const isLiked = card.likes.some((i) => i._id === currentUser._id);
@@ -149,16 +149,6 @@ function App() {
       <div className="page">
         <Header email={userEmail} />
         <Switch>
-          <Route path="/sign-up">
-            <Register
-              isInfoToolTipOpen={isInfoToolTipOpen}
-              handleToolTipClose={closeAllPopups}
-              openToolTip={openToolTip}
-            />
-          </Route>
-          <Route path="/sign-in">
-            <Login handleLogin={handleLogin} />
-          </Route>
           <ProtectedRoute
             exact
             path="/"
@@ -172,6 +162,16 @@ function App() {
             onEditAvatar={handleAvatarEditClick}
             onCardClick={handleCardClick}
           />
+          <Route path="/sign-up">
+            <Register
+              isInfoToolTipOpen={isInfoToolTipOpen}
+              handleToolTipClose={closeAllPopups}
+              openToolTip={openToolTip}
+            />
+          </Route>
+          <Route path="/sign-in">
+            <Login handleLogin={handleLogin} />
+          </Route>
         </Switch>
         <Footer />
         <EditAvatarPopup
