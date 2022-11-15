@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 function Register({ onSubmit }) {
   const [email, setEmail] = React.useState("");
@@ -45,9 +46,9 @@ function Register({ onSubmit }) {
           Зарегистрироваться
         </button>
       </form>
-      <a href="/sign-in" className="sign-up__link hover-opacity">
+      <Link to="/sign-in" className="sign-up__link hover-opacity">
         Уже зарегистрированы? Войти
-      </a>
+      </Link>
     </div>
   );
 }

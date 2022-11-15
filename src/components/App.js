@@ -171,14 +171,12 @@ function App() {
 
   function handleRegisterSubmit(email, password) {
     Auth.register(email, password)
-      .then((res) => {
-        if (res.data) {
-          setRegistered(true);
-        }
+      .then(() => {
+        setRegistered(true);
       })
-      .catch((res) => {
+      .catch((err) => {
         setRegistered(false);
-        setErrorMessage(res.error);
+        setErrorMessage(err);
       })
       .finally(() => {
         openToolTip();

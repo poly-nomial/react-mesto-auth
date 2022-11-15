@@ -11,7 +11,15 @@ export const register = (email, password) => {
       password,
       email,
     }),
-  }).then((res) => getResponseData(res));
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      if (res.data) {
+        return res;
+      } else {
+        return Promise.reject(res.error);
+      }
+    });
 };
 
 export const login = (email, password) => {
