@@ -9,6 +9,7 @@ import ImagePopup from "./ImagePopup.js";
 import EditAvatarPopup from "./EditAvatarPopup.js";
 import EditProfilePopup from "./EditProfilePopup.js";
 import AddPlacePopup from "./AddPlacePopup.js";
+import InfoToolTip from "./InfoToolTip.js";
 import Register from "./Register.js";
 import Login from "./Login.js";
 import ProtectedRoute from "./ProtectedRoute.js";
@@ -16,16 +17,19 @@ import * as Auth from "../utils/Auth.js";
 import { CurrentUserContext } from "../contexts/CurrentUserContext.js";
 
 function App() {
-  const [loggedIn, toggleLoggedIn] = React.useState(false);
-  const [isEditProfilePopupOpen, toggleEditProfilePopup] =
+  const [loggedIn, setLoggedIn] = React.useState(false);
+  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] =
     React.useState(false);
-  const [isAddPlacePopupOpen, toggleAddPlacePopup] = React.useState(false);
-  const [isEditAvatarPopupOpen, toggleEditAvatarPopup] = React.useState(false);
-  const [isInfoToolTipOpen, toggleInfoToolTip] = React.useState(false);
+  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
+  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] =
+    React.useState(false);
+  const [isInfoToolTipOpen, setIsInfoToolTipOpen] = React.useState(false);
   const [selectedCard, handleCardClick] = React.useState(null);
-  const [currentUser, setUser] = React.useState({});
+  const [currentUser, setCurrentUser] = React.useState({});
   const [userEmail, setEmail] = React.useState("");
   const [cards, setCards] = React.useState([]);
+  const [isRegistered, setRegistered] = React.useState(null);
+  const [errorMessage, setErrorMessage] = React.useState("");
 
   const history = useHistory();
 
@@ -36,7 +40,7 @@ function App() {
         .then((res) => {
           if (res.data) {
             setEmail(res.data.email);
-            handleLogin();
+            handleLoggedIn();
             history.push("/");
           } else {
             console.log(`${res.message}`);
@@ -55,7 +59,7 @@ function App() {
     api
       .getUserInfo()
       .then((data) => {
-        setUser(data);
+        setCurrentUser(data);
       })
       .then(() => {
         api
@@ -91,43 +95,47 @@ function App() {
   }
 
   function handleAvatarEditClick() {
-    toggleEditAvatarPopup(true);
+    setIsEditAvatarPopupOpen(true);
   }
 
   function handleEditProfileClick() {
-    toggleEditProfilePopup(true);
+    setIsEditProfilePopupOpen(true);
   }
 
   function handleAddPlaceClick() {
-    toggleAddPlacePopup(true);
+    setIsAddPlacePopupOpen(true);
   }
 
   function openToolTip() {
-    toggleInfoToolTip(true);
+    setIsInfoToolTipOpen(true);
   }
 
   function closeAllPopups() {
-    toggleEditProfilePopup(false);
-    toggleAddPlacePopup(false);
-    toggleEditAvatarPopup(false);
-    toggleInfoToolTip(false);
+    setIsEditProfilePopupOpen(false);
+    setIsAddPlacePopupOpen(false);
+    setIsEditAvatarPopupOpen(false);
+    setIsInfoToolTipOpen(false);
     handleCardClick(null);
   }
 
   function handleUpdateUser(name, description) {
     api
       .editUserInfo(name, description)
-      .then((data) => setUser(data))
-      .catch((err) => console.log(err))
-      .finally(() => closeAllPopups());
+      .then((data) => {
+        setCurrentUser(data);
+        closeAllPopups();
+      })
+      .catch((err) => console.log(err));
   }
 
   function handleUpdateAvatar(avatarLink) {
     api
       .updateAvatar(avatarLink)
-      .then((data) => setUser(data))
-      .catch((err) => console.log(err))
-      .finally(() => closeAllPopups());
+      .then((data) => {
+        setCurrentUser(data);
+        closeAllPopups();
+      })
+      .catch((err) => console.log(err));
   }
 
   function handleAddPlaceSubmit(card) {
@@ -135,19 +143,46 @@ function App() {
       .postNewCard(card)
       .then((newCard) => {
         setCards([newCard, ...cards]);
+        closeAllPopups();
       })
-      .catch((err) => console.log(err))
-      .finally(() => closeAllPopups());
+      .catch((err) => console.log(err));
   }
 
-  function handleLogin() {
-    toggleLoggedIn(true);
+  function handleLoggedIn() {
+    setLoggedIn(true);
   }
 
   function handleSignOut() {
-    handleLogin();
+    handleLoggedIn();
     localStorage.removeItem("token");
     history.push("/sign-in");
+  }
+
+  function handleLoginSubmit(email, password) {
+    Auth.login(email, password)
+      .then((data) => {
+        localStorage.setItem("token", data.token);
+        handleLoggedIn();
+        setEmail(data.email);
+        history.push("/");
+      })
+      .catch((err) => console.log(err));
+  }
+
+  function handleRegisterSubmit(email, password) {
+    Auth.register(email, password)
+      .then((res) => {
+        if (res.data) {
+          setRegistered(true);
+        }
+      })
+      .catch((res) => {
+        setRegistered(false);
+        setErrorMessage(res.error);
+      })
+      .finally(() => {
+        openToolTip();
+      });
   }
 
   return (
@@ -156,14 +191,10 @@ function App() {
         <Header email={userEmail} onSignOut={handleSignOut} />
         <Switch>
           <Route path="/sign-up">
-            <Register
-              isInfoToolTipOpen={isInfoToolTipOpen}
-              handleToolTipClose={closeAllPopups}
-              openToolTip={openToolTip}
-            />
+            <Register onSubmit={handleRegisterSubmit} />
           </Route>
           <Route path="/sign-in">
-            <Login handleLogin={handleLogin} />
+            <Login onSubmit={handleLoginSubmit} />
           </Route>
           <ProtectedRoute
             exact
@@ -202,8 +233,14 @@ function App() {
           onClose={closeAllPopups}
           buttonText="Да"
           onSubmit={() => {}}
-        ></PopupWithForm>
+        />
         <ImagePopup card={selectedCard} onClose={closeAllPopups} />
+        <InfoToolTip
+          isRegistered={isRegistered}
+          onClose={closeAllPopups}
+          isOpen={isInfoToolTipOpen}
+          errorMessage={errorMessage}
+        />
       </div>
     </CurrentUserContext.Provider>
   );

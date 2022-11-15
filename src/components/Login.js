@@ -1,12 +1,11 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
-import * as Auth from "../utils/Auth.js";
 
-function Login({ handleLogin }) {
+function Login({ onSubmit }) {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
 
-  let history = useHistory();
+  const history = useHistory();
 
   function handleEmailChange(e) {
     setEmail(e.target.value);
@@ -18,13 +17,7 @@ function Login({ handleLogin }) {
 
   function handleSubmit(e) {
     e.preventDefault();
-
-    Auth.login(email, password)
-      .then(() => {
-        handleLogin();
-        history.push("/");
-      })
-      .catch((err) => console.log(err));
+    onSubmit(email, password);
   }
 
   return (
